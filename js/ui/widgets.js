@@ -5,10 +5,13 @@
 import { h, copyText, downloadFile } from "../utils/dom.js";
 import { icon } from "../utils/icons.js";
 import { toast } from "../components/toast.js";
+import { tp, t } from "../core/i18n.js";
 
 /** Labelled input with optional prefix/suffix addon + hint + error slot. */
 export function field({ label, hint, addon, addonSide = "right", ...attrs }) {
+  if (attrs.placeholder) attrs = { ...attrs, placeholder: tp(attrs.placeholder) };
   const input = h("input", { class: "input", ...attrs });
+  label = tp(label); hint = tp(hint);
   let control = input;
   if (addon) {
     control = h("div", { class: "input-group" });
@@ -31,26 +34,29 @@ export function field({ label, hint, addon, addonSide = "right", ...attrs }) {
 }
 
 export function selectField({ label, options, hint, ...attrs }) {
+  // Localize only the visible option TEXT — the underlying value is preserved
+  // so tool logic (which reads .value) keeps working across languages.
   const sel = h("select", { class: "select", ...attrs },
     ...options.map((o) =>
-      h("option", { value: o.value ?? o }, o.label ?? o)
+      h("option", { value: o.value ?? o }, tp(o.label ?? o))
     )
   );
   const wrap = h("label", { class: "field" },
-    label && h("span", { class: "field__label" }, label),
+    label && h("span", { class: "field__label" }, tp(label)),
     sel,
-    hint && h("span", { class: "field__hint" }, hint)
+    hint && h("span", { class: "field__hint" }, tp(hint))
   );
   wrap._input = sel;
   return wrap;
 }
 
 export function textareaField({ label, hint, ...attrs }) {
+  if (attrs.placeholder) attrs = { ...attrs, placeholder: tp(attrs.placeholder) };
   const ta = h("textarea", { class: "textarea", ...attrs });
   const wrap = h("label", { class: "field" },
-    label && h("span", { class: "field__label" }, label),
+    label && h("span", { class: "field__label" }, tp(label)),
     ta,
-    hint && h("span", { class: "field__hint" }, hint)
+    hint && h("span", { class: "field__hint" }, tp(hint))
   );
   wrap._input = ta;
   return wrap;
@@ -65,7 +71,7 @@ export function rangeField({ label, min, max, step = 1, value, format = (v) => v
   });
   const wrap = h("label", { class: "field" },
     h("span", { class: "field__label", style: { justifyContent: "space-between" } },
-      h("span", {}, label), out),
+      h("span", {}, tp(label)), out),
     input
   );
   wrap._input = input;
@@ -83,7 +89,7 @@ export function segmented(options, value, onChange) {
         class: o.value === el.value ? "is-active" : "",
         role: "tab", "aria-selected": o.value === el.value,
         onclick: () => { el.value = o.value; render(); onChange?.(o.value); },
-      }, o.label);
+      }, tp(o.label));
       el.append(b);
     }
   };
@@ -98,7 +104,7 @@ export function resultCard(children) {
 
 export function resultHero(label, value) {
   return h("div", { class: "result-hero" },
-    h("div", { class: "result-hero__label" }, label),
+    h("div", { class: "result-hero__label" }, tp(label)),
     h("div", { class: "result-hero__value gradient-text" }, value)
   );
 }
@@ -107,26 +113,26 @@ export function statGrid(stats) {
   return h("div", { class: "result-grid" },
     ...stats.map((s) => h("div", { class: "result-stat" },
       h("div", { class: "result-stat__value" }, s.value),
-      h("div", { class: "result-stat__label" }, s.label)
+      h("div", { class: "result-stat__label" }, tp(s.label))
     ))
   );
 }
 
 /** Copy-to-clipboard button. */
-export function copyButton(getText, label = "Copy") {
+export function copyButton(getText, label = t("common.copy")) {
   const btn = h("button", { class: "copy-btn", html: `${icon("copy")}<span>${label}</span>` });
   btn.addEventListener("click", async () => {
     const ok = await copyText(typeof getText === "function" ? getText() : getText);
     if (ok) {
       btn.classList.add("is-done");
-      btn.innerHTML = `${icon("check")}<span>Copied</span>`;
-      toast("Copied to clipboard", "success", 1600);
+      btn.innerHTML = `${icon("check")}<span>${t("common.copied")}</span>`;
+      toast(t("common.copiedToast"), "success", 1600);
       setTimeout(() => {
         btn.classList.remove("is-done");
         btn.innerHTML = `${icon("copy")}<span>${label}</span>`;
       }, 1600);
     } else {
-      toast("Couldn't copy", "error");
+      toast(t("common.copyFail"), "error");
     }
   });
   return btn;

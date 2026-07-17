@@ -22,8 +22,8 @@ register({
   tips: ["Subtle gradients (close hues) feel more premium than rainbow blends."],
   faqs: [{ q: "Can I use these anywhere?", a: "Yes — the output is standard CSS you can paste into any stylesheet or inline style." }],
   mount(root) {
-    const c1 = field({ label: "Color 1", type: "color", value: "#345ef4" });
-    const c2 = field({ label: "Color 2", type: "color", value: "#8b5cf6" });
+    const c1 = field({ label: "Color 1", type: "color", value: "#0a92b9" });
+    const c2 = field({ label: "Color 2", type: "color", value: "#717413" });
     const angle = rangeField({ label: "Angle", min: 0, max: 360, step: 1, value: 120, format: (v) => `${v}°`, onInput: paint });
     const preview = h("div", { style: { height: "180px", borderRadius: "16px", margin: "1rem 0", boxShadow: "var(--sh-md)" } });
     const code = h("div", { class: "output-block" });
@@ -106,7 +106,7 @@ register({
   tips: ["Use one dominant color, a couple of supporting tones, and one accent for contrast."],
   faqs: [{ q: "What's an analogous scheme?", a: "Colors next to each other on the wheel — they feel harmonious and calm. Complementary colors sit opposite for high contrast." }],
   mount(root) {
-    const base = field({ label: "Base color", type: "color", value: "#345ef4" });
+    const base = field({ label: "Base color", type: "color", value: "#0a92b9" });
     const mode = selectField({ label: "Harmony", options: [
       { value: "complementary", label: "Complementary" }, { value: "analogous", label: "Analogous" },
       { value: "triadic", label: "Triadic" }, { value: "monochrome", label: "Monochrome" }, { value: "shades", label: "Shades" },

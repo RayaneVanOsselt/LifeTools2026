@@ -27,6 +27,7 @@ const DEFAULTS = {
   favorites: [],
   recents: [],
   theme: "system",
+  locale: null,     // null => auto-detect from browser on first load
   currency: "EUR",
   settings: { reduceMotion: false, newsletter: false },
   history: {},   // toolId -> [{ ts, label }]

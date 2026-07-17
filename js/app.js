@@ -1,10 +1,11 @@
 /**
  * LifeTools — application bootstrap.
- * Wires together theme, registry (via tool imports), navigation, routing,
+ * Wires together i18n, theme, registry (via tool imports), navigation, routing,
  * search, the AI assistant, and the footer.
  */
 import { theme } from "./core/theme.js";
-import { route, startRouter, setNotFound, setOnNavigate } from "./core/router.js";
+import { initI18n, onLocaleChange } from "./core/i18n.js";
+import { route, startRouter, setNotFound, setOnNavigate, resolve } from "./core/router.js";
 import { initNavbar } from "./components/navbar.js";
 import { initSearch } from "./components/search.js";
 import { initAssistant } from "./components/assistant.js";
@@ -14,6 +15,11 @@ import {
   renderTool, renderAllTools, renderCategory, renderFavorites, renderNotFound,
 } from "./ui/views.js";
 
+// Register the available locales (order defines the switcher order).
+import "./i18n/en.js";
+import "./i18n/fr.js";
+import "./i18n/nl.js";
+
 // Importing the tool modules registers every tool with the registry.
 import "./tools/finance.js";
 import "./tools/health.js";
@@ -22,6 +28,7 @@ import "./tools/developer.js";
 import "./tools/conversion.js";
 
 function boot() {
+  initI18n();
   theme.init();
 
   const app = document.getElementById("app");
@@ -35,7 +42,7 @@ function boot() {
   initAssistant();
 
   // Routes
-  route("/", (_, r = view) => renderHome(view));
+  route("/", () => renderHome(view));
   route("/tools", () => renderAllTools(view));
   route("/category/:id", ({ id }) => renderCategory(view, id));
   route("/tool/:id", ({ id }) => renderTool(view, id));
@@ -43,14 +50,23 @@ function boot() {
   setNotFound(() => renderNotFound(view));
   setOnNavigate((path) => nav.setActive(path));
 
-  view.after(buildFooter());
+  let footerEl = buildFooter();
+  view.after(footerEl);
 
   startRouter();
 
-  // Reveal footer/newsletter etc. as they enter
-  window.dispatchEvent(new Event("scroll"));
+  // Re-render everything when the language changes.
+  onLocaleChange(() => {
+    nav.refresh();
+    window.LifeToolsAssistant?.refresh();
+    const nf = buildFooter();
+    footerEl.replaceWith(nf);
+    footerEl = nf;
+    resolve();            // re-render the current view in the new language
+    nav.setActive(location.hash.slice(1) || "/");
+  });
 
-  // Loading splash out
+  window.dispatchEvent(new Event("scroll"));
   document.getElementById("splash")?.classList.add("is-hidden");
 }
 

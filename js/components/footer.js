@@ -5,6 +5,7 @@ import { h } from "../utils/dom.js";
 import { icon } from "../utils/icons.js";
 import { categories } from "../core/registry.js";
 import { navigate } from "../core/router.js";
+import { t } from "../core/i18n.js";
 
 export function buildFooter() {
   const col = (title, links) => h("div", { class: "footer__col" },
@@ -18,20 +19,20 @@ export function buildFooter() {
           h("a", { class: "brand", href: "#/" },
             h("span", { class: "brand__mark", html: icon("zap") }),
             h("span", {}, "Life", h("span", { class: "gradient-text" }, "Tools"))),
-          h("p", {}, "The premium home for smart everyday tools. Free, private, and built to make your day easier.")),
-        col("Categories", categories.map((c) => ({ label: c.name, path: `/category/${c.id}` }))),
-        col("Product", [
-          { label: "All tools", path: "/tools" },
-          { label: "Favorites", path: "/favorites" },
-          { label: "AI assistant", path: "/" },
-          { label: "What's new", path: "/tools" },
+          h("p", {}, t("footer.tagline"))),
+        col(t("footer.categories"), categories.map((c) => ({ label: t(`cat.${c.id}`), path: `/category/${c.id}` }))),
+        col(t("footer.product"), [
+          { label: t("footer.allTools"), path: "/tools" },
+          { label: t("footer.favorites"), path: "/favorites" },
+          { label: t("footer.aiAssistant"), path: "/" },
+          { label: t("footer.whatsNew"), path: "/tools" },
         ]),
-        col("Company", [
-          { label: "About", path: "/" }, { label: "Privacy", path: "/" },
-          { label: "Terms", path: "/" }, { label: "Contact", path: "/" },
+        col(t("footer.company"), [
+          { label: t("footer.about"), path: "/" }, { label: t("footer.privacy"), path: "/" },
+          { label: t("footer.terms"), path: "/" }, { label: t("footer.contact"), path: "/" },
         ])),
       h("div", { class: "footer__bottom" },
-        h("span", {}, `© ${new Date().getFullYear()} LifeTools. Crafted with care. All calculations run locally in your browser.`),
+        h("span", {}, t("footer.rights", { year: new Date().getFullYear() })),
         h("div", { class: "footer__social" },
           h("a", { href: "#/", "aria-label": "Twitter", html: icon("twitter") }),
           h("a", { href: "#/", "aria-label": "GitHub", html: icon("github") }),
