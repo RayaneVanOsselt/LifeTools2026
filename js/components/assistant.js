@@ -2,31 +2,33 @@
  * AI Assistant — floating chatbot with typing indicator, timestamps,
  * quick suggestions, and persisted conversation history.
  */
-import { h, qs } from "../utils/dom.js";
+import { h } from "../utils/dom.js";
 import { icon } from "../utils/icons.js";
-import { ask, QUICK_PROMPTS } from "../services/ai-service.js";
+import { ask } from "../services/ai-service.js";
 import { navigate } from "../core/router.js";
+import { t, intlLocale } from "../core/i18n.js";
 
 const HISTORY_KEY = "lifetools:chat";
 
 export function initAssistant() {
   const fab = h("button", {
-    class: "assistant-fab", "aria-label": "Open LifeTools assistant",
-    html: `<span class="assistant-fab__pulse">${icon("sparkle")}</span><span class="assistant-fab__label">Ask AI</span>`,
+    class: "assistant-fab", "aria-label": t("assistant.open"),
+    html: `<span class="assistant-fab__pulse">${icon("sparkle")}</span><span class="assistant-fab__label">${t("assistant.open")}</span>`,
   });
 
   const body = h("div", { class: "assistant-body", id: "assistant-body" });
   const suggestions = h("div", { class: "assistant-suggestions" });
-  const input = h("input", { type: "text", placeholder: "Ask me anything…", "aria-label": "Message the assistant" });
+  const input = h("input", { type: "text", placeholder: t("assistant.placeholder"), "aria-label": t("assistant.placeholder") });
   const sendBtn = h("button", { "aria-label": "Send", html: icon("send") });
 
-  const panel = h("div", { class: "assistant-panel", role: "dialog", "aria-label": "LifeTools assistant" },
+  const headTitle = h("div", { class: "assistant-head__title" }, t("assistant.title"));
+  const headStatus = h("div", { class: "assistant-head__status" }, t("assistant.status"));
+
+  const panel = h("div", { class: "assistant-panel", role: "dialog", "aria-label": t("assistant.title") },
     h("div", { class: "assistant-head" },
       h("div", { class: "assistant-head__avatar", html: icon("bot") }),
-      h("div", {},
-        h("div", { class: "assistant-head__title" }, "LifeTools Assistant"),
-        h("div", { class: "assistant-head__status" }, "Online · here to help")),
-      h("button", { "aria-label": "Close assistant", html: icon("close"), onclick: close })),
+      h("div", {}, headTitle, headStatus),
+      h("button", { "aria-label": "Close", html: icon("close"), onclick: close })),
     body, suggestions,
     h("div", { class: "assistant-input" }, input, sendBtn),
   );
@@ -47,8 +49,8 @@ export function initAssistant() {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
 
   function greet() {
-    addBot("👋 Hi! I'm your LifeTools assistant. I can help you find the right tool, explain calculations, or guide you around the platform. What are you working on?");
-    renderSuggestions(QUICK_PROMPTS);
+    addBot(t("assistant.greeting"));
+    renderSuggestions(t("assistant.quickPrompts"));
   }
 
   function renderSuggestions(list) {
@@ -56,16 +58,10 @@ export function initAssistant() {
     for (const s of list) suggestions.append(h("button", { onclick: () => submit(s) }, s));
   }
 
-  function time() { return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+  function time() { return new Date().toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" }); }
 
-  function addUser(text) {
-    history.push({ role: "user", text, ts: Date.now() });
-    save(); appendMessage("user", text);
-  }
-  function addBot(text, actions) {
-    history.push({ role: "bot", text, ts: Date.now() });
-    save(); appendMessage("bot", text, actions);
-  }
+  function addUser(text) { history.push({ role: "user", text, ts: Date.now() }); save(); appendMessage("user", text); }
+  function addBot(text, actions) { history.push({ role: "bot", text, ts: Date.now() }); save(); appendMessage("bot", text, actions); }
 
   function appendMessage(role, text, actions) {
     const bubble = h("div", { class: "msg__bubble" });
@@ -78,7 +74,7 @@ export function initAssistant() {
     if (actions?.length) {
       const row = h("div", { style: { display: "flex", gap: ".4rem", flexWrap: "wrap", marginTop: ".4rem" } });
       for (const a of actions) {
-        row.append(h("button", { class: "assistant-suggestions", style: { padding: 0 } },
+        row.append(h("div", { class: "assistant-suggestions", style: { padding: 0 } },
           h("button", { onclick: () => runAction(a) }, a.label)));
       }
       wrap.firstChild.append(row);
@@ -94,9 +90,9 @@ export function initAssistant() {
   }
 
   function showTyping() {
-    const t = h("div", { class: "msg msg--bot", id: "typing" }, h("div", { class: "typing" }, h("span"), h("span"), h("span")));
-    body.append(t); body.scrollTop = body.scrollHeight;
-    return () => t.remove();
+    const el = h("div", { class: "msg msg--bot", id: "typing" }, h("div", { class: "typing" }, h("span"), h("span"), h("span")));
+    body.append(el); body.scrollTop = body.scrollHeight;
+    return () => el.remove();
   }
 
   async function submit(text) {
@@ -106,11 +102,10 @@ export function initAssistant() {
     suggestions.innerHTML = "";
     addUser(text);
     const stop = showTyping();
-    // realistic small delay
     await new Promise((r) => setTimeout(r, 500 + Math.random() * 500));
     let res;
     try { res = await ask(text, { history }); }
-    catch { res = { text: "Sorry, something went wrong. Please try again." }; }
+    catch { res = { text: t("assistant.error") }; }
     stop();
     addBot(res.text, res.actions);
   }
@@ -125,9 +120,18 @@ export function initAssistant() {
   function save() { try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(-40))); } catch {} }
   function load() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; } }
 
-  // Public hook so other UI (e.g. "Ask AI about this tool") can open + prefill.
+  /** Re-localize the assistant chrome after a language change. */
+  function refresh() {
+    fab.querySelector(".assistant-fab__label").textContent = t("assistant.open");
+    fab.setAttribute("aria-label", t("assistant.open"));
+    headTitle.textContent = t("assistant.title");
+    headStatus.textContent = t("assistant.status");
+    input.placeholder = t("assistant.placeholder");
+    if (suggestions.children.length && !history.length) renderSuggestions(t("assistant.quickPrompts"));
+  }
+
   window.LifeToolsAssistant = {
-    open, close,
-    askAbout(toolName) { open(); setTimeout(() => submit(`Tell me about the ${toolName}`), 350); },
+    open, close, refresh,
+    askAbout(toolName) { open(); setTimeout(() => submit(t("assistant.aboutPrompt", { name: toolName })), 350); },
   };
 }

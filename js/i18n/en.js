@@ -1,0 +1,111 @@
+/** English locale — the source of truth. Other locales override these keys. */
+import { registerLocale } from "../core/i18n.js";
+
+registerLocale({
+  code: "en",
+  name: "English",
+  flag: "🇬🇧",
+  intl: "en-GB",
+  ui: {
+    nav: { home: "Home", tools: "All Tools", favorites: "Favorites", search: "Search tools…", language: "Language" },
+    cat: {
+      finance: "Finance", health: "Health & Life", productivity: "Productivity",
+      developer: "Developer", conversion: "Converters",
+      financeBlurb: "Money, loans, tax & savings",
+      healthBlurb: "Body, wellbeing & habits",
+      productivityBlurb: "Write, plan & get things done",
+      developerBlurb: "Code, design & data tools",
+      conversionBlurb: "Units, currency & files",
+    },
+    hero: {
+      badgeNew: "New", badgePre: "AI assistant now built in — ", badgeStrong: "ask anything",
+      titleA: "Everything you need,", titleB: "in one place.",
+      sub: "Smart, beautiful online tools that simplify your everyday life — finance, health, productivity, design and conversions. Free, private, and lightning fast.",
+      searchPlaceholder: 'Search {count}+ tools — try "loan", "bmi", "convert"…',
+      search: "Search", popular: "Popular:", explore: "Explore all tools", askAI: "Ask the AI",
+    },
+    stats: { tools: "Free tools", categories: "Categories", private: "Private & free", users: "Monthly users" },
+    toolsSec: {
+      eyebrow: "The toolbox", title: "Pick a tool, get an instant answer",
+      lead: "Every tool is designed to be fast, accurate and delightful to use — no sign-up required.",
+      popular: "⭐ Popular", all: "All", viewAll: "View all",
+    },
+    why: {
+      eyebrow: "Why LifeTools", title: "Built like a product, not a page",
+      lead: "The polish of a premium app, the simplicity of a single search box.",
+      items: [
+        { t: "Lightning fast", d: "No bloat, no trackers slowing you down. Tools load instantly and calculate in real time as you type." },
+        { t: "Private by design", d: "Everything runs in your browser. Your numbers, text and data never leave your device." },
+        { t: "AI assistant", d: "Not sure which tool you need? Ask our built-in assistant and get pointed to the right one instantly." },
+        { t: "Free forever", d: "The whole toolbox is free — no paywalls, no credit card, no catch. Just useful tools." },
+        { t: "One home for everything", d: "Stop bookmarking a dozen sites. Finance, health, dev and conversion tools all live here." },
+        { t: "Save your favorites", d: "Star the tools you use most and pick up right where you left off, every time." },
+      ],
+    },
+    testi: {
+      eyebrow: "Loved by users", title: "People get things done faster",
+      items: [
+        { role: "Freelance designer", quote: "I used to have five bookmarks for random calculators. Now it's just LifeTools. The gradient and shadow generators are genuinely part of my workflow." },
+        { role: "Small business owner", quote: "The VAT and loan calculators are exactly what I need for quick client quotes. Clean, fast, and the results just make sense." },
+        { role: "Student", quote: "The Pomodoro timer and BMI calculator get daily use. It feels like an app I'd pay for, but it's free." },
+      ],
+    },
+    faq: {
+      eyebrow: "FAQ", title: "Questions, answered",
+      items: [
+        { q: "Is LifeTools really free?", a: "Yes. Every tool is free to use with no account required. We may add optional premium features in the future, but the core toolbox stays free." },
+        { q: "Do you store my data?", a: "No. All calculations happen locally in your browser. Favorites and history are saved only on your device using local storage." },
+        { q: "Do I need to install anything?", a: "Nothing at all. LifeTools runs in any modern browser on desktop and mobile. Add it to your home screen for one-tap access." },
+        { q: "How accurate are the calculators?", a: "The math uses standard, well-established formulas. Financial tools are estimates — always confirm important figures with a professional." },
+        { q: "Can I suggest a new tool?", a: "Absolutely. The platform is built to grow — new tools are added regularly based on what people ask for." },
+      ],
+    },
+    news: {
+      title: "Get new tools in your inbox", sub: "One short email when we ship something useful. No spam, ever.",
+      placeholder: "you@example.com", subscribe: "Subscribe",
+      invalid: "Please enter a valid email", done: "Subscribed! Welcome aboard 🎉",
+    },
+    footer: {
+      tagline: "The premium home for smart everyday tools. Free, private, and built to make your day easier.",
+      categories: "Categories", product: "Product", company: "Company",
+      allTools: "All tools", favorites: "Favorites", aiAssistant: "AI assistant", whatsNew: "What's new",
+      about: "About", privacy: "Privacy", terms: "Terms", contact: "Contact",
+      rights: "© {year} LifeTools. Crafted with care. All calculations run locally in your browser.",
+    },
+    search: {
+      placeholder: "Search tools…", recent: "Recently used", all: "All tools",
+      empty: 'No tools match "{q}". Try "loan", "bmi", or "convert".',
+    },
+    assistant: {
+      title: "LifeTools Assistant", status: "Online · here to help", open: "Ask AI",
+      greeting: "👋 Hi! I'm your LifeTools assistant. I can help you find the right tool, explain calculations, or guide you around the platform. What are you working on?",
+      placeholder: "Ask me anything…",
+      quickPrompts: ["How do I calculate my loan?", "Help me save each month", "Convert kg to pounds", "Make a strong password"],
+      aboutPrompt: "Tell me about the {name}",
+      error: "Sorry, something went wrong. Please try again.",
+      recommend: "I recommend {link}. {desc}",
+      openTool: "Open {name}",
+      browseAll: "Browse all tools",
+      replyGreeting: "👋 Hi! Tell me what you're trying to do — save money, calculate something, convert units — and I'll point you to the right tool.",
+      replyThanks: "You're welcome! 🙌 Anything else I can help you find?",
+      replyHelp: "LifeTools has {count}+ free tools across {cats} categories: {list}. Ask me things like “how do I calculate my loan?” or “convert kg to pounds”.",
+      fallback: "I'm not sure yet — try describing your goal (e.g. “calculate a loan”, “convert kg to lb”, “make a password”). You can also browse all tools from the menu.",
+    },
+    toolPage: {
+      askAI: "Ask AI", save: "Save", saved: "Saved", howTo: "How to use", tips: "Pro tips",
+      related: "Related tools", about: "About the {name}", faq: "Frequently asked questions",
+      savedToast: "Saved to favorites", removedToast: "Removed from favorites",
+      favAdded: "Added {name} to favorites", favRemoved: "Removed from favorites",
+      mountError: "This tool hit an error. Please refresh.",
+    },
+    listing: {
+      all: "All Tools", allLead: "Browse the full LifeTools collection — {n} tools and counting.",
+      favTitle: "Your Favorites", favLead: "Your starred tools, ready to go.",
+      favEmptyTitle: "No favorites yet", favEmptyText: "Star tools you use often and they'll appear here for quick access.",
+      browse: "Browse tools", everything: "Everything", category: "Category", saved: "Saved", empty: "No tools here yet.",
+      catSuffix: " Tools",
+    },
+    common: { copy: "Copy", copied: "Copied", download: "Download", copiedToast: "Copied to clipboard", copyFail: "Couldn't copy", home: "Home", now: "Now", generate: "Generate", regenerate: "Regenerate" },
+    notFound: { title: "Page not found", text: "The tool or page you're looking for doesn't exist.", back: "Back home" },
+  },
+});

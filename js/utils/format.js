@@ -1,16 +1,18 @@
 /**
  * Formatting helpers — currency, numbers, dates, durations.
+ * Number/currency/date formatting follows the active i18n locale.
  */
+import { intlLocale } from "../core/i18n.js";
 
 let CURRENCY = "EUR";
-let LOCALE = navigator.language || "en-US";
+const L = () => intlLocale();
 
 export function setCurrency(code) { CURRENCY = code; }
 export function getCurrency() { return CURRENCY; }
 
 export function money(n, currency = CURRENCY, opts = {}) {
   if (!isFinite(n)) return "—";
-  return new Intl.NumberFormat(LOCALE, {
+  return new Intl.NumberFormat(L(), {
     style: "currency",
     currency,
     maximumFractionDigits: 2,
@@ -20,12 +22,12 @@ export function money(n, currency = CURRENCY, opts = {}) {
 
 export function num(n, opts = {}) {
   if (!isFinite(n)) return "—";
-  return new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 2, ...opts }).format(n);
+  return new Intl.NumberFormat(L(), { maximumFractionDigits: 2, ...opts }).format(n);
 }
 
 export function percent(n, digits = 1) {
   if (!isFinite(n)) return "—";
-  return new Intl.NumberFormat(LOCALE, {
+  return new Intl.NumberFormat(L(), {
     style: "percent",
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
@@ -34,7 +36,7 @@ export function percent(n, digits = 1) {
 
 export function compact(n) {
   if (!isFinite(n)) return "—";
-  return new Intl.NumberFormat(LOCALE, { notation: "compact", maximumFractionDigits: 1 }).format(n);
+  return new Intl.NumberFormat(L(), { notation: "compact", maximumFractionDigits: 1 }).format(n);
 }
 
 /** Human readable duration from minutes. */

@@ -11,6 +11,9 @@ import { navigate } from "../core/router.js";
 import { toolCard, observeReveals } from "./components.js";
 import { toast } from "../components/toast.js";
 import { setSEO } from "../core/seo.js";
+import { t, tt } from "../core/i18n.js";
+
+const catName = (id) => t(`cat.${id}`);
 
 /* ---------------- Tool page ---------------- */
 export function renderTool(root, id) {
@@ -18,87 +21,87 @@ export function renderTool(root, id) {
   if (!tool) return renderNotFound(root);
   pushRecent(id);
   const cat = categoryMap[tool.category];
+  const name = tt(tool, "name");
   setSEO({
-    title: `${tool.name} — LifeTools`,
-    description: tool.about || tool.tagline,
-    faqs: tool.faqs,
-    name: tool.name,
+    title: `${name} — LifeTools`,
+    description: tt(tool, "about") || tt(tool, "tagline"),
+    faqs: tt(tool, "faqs"),
+    name,
   });
 
   root.innerHTML = "";
   const favBtn = h("button", { class: `btn btn--ghost ${isFavorite(id) ? "is-fav" : ""}`,
-    html: `${icon("star")} <span>${isFavorite(id) ? "Saved" : "Save"}</span>` });
+    html: `${icon("star")} <span>${isFavorite(id) ? t("toolPage.saved") : t("toolPage.save")}</span>` });
   favBtn.addEventListener("click", () => {
     const on = toggleFavorite(id);
-    favBtn.innerHTML = `${icon("star")} <span>${on ? "Saved" : "Save"}</span>`;
+    favBtn.innerHTML = `${icon("star")} <span>${on ? t("toolPage.saved") : t("toolPage.save")}</span>`;
     favBtn.querySelector("svg").style.fill = on ? "var(--amber-500)" : "none";
-    toast(on ? "Saved to favorites" : "Removed from favorites", "success", 1500);
+    toast(on ? t("toolPage.savedToast") : t("toolPage.removedToast"), "success", 1500);
   });
   if (isFavorite(id)) favBtn.querySelector("svg").style.fill = "var(--amber-500)";
 
-  const askBtn = h("button", { class: "btn btn--soft", html: `${icon("sparkle")} Ask AI`,
-    onclick: () => window.LifeToolsAssistant?.askAbout(tool.name) });
+  const askBtn = h("button", { class: "btn btn--soft", html: `${icon("sparkle")} ${t("toolPage.askAI")}`,
+    onclick: () => window.LifeToolsAssistant?.askAbout(name) });
 
-  const toolRoot = h("div"); // where the interactive tool mounts
+  const toolRoot = h("div");
 
   const page = h("div", { class: "tool-page view", style: { "--card-accent": cat.accent } },
     h("div", { class: "container" },
-      breadcrumb(cat, tool),
+      breadcrumb(cat, name),
       h("div", { class: "tool-header" },
         h("div", { class: "tool-header__icon" }, tool.icon),
         h("div", { class: "tool-header__text" },
-          h("h1", {}, tool.name),
-          h("p", {}, tool.tagline)),
+          h("h1", {}, name),
+          h("p", {}, tt(tool, "tagline"))),
         h("div", { class: "tool-header__actions" }, askBtn, favBtn)),
       h("div", { class: "tool-layout" },
         h("div", {}, h("div", { class: "tool-panel" }, toolRoot)),
         sidebar(tool)),
-      contentBlock(tool)));
+      contentBlock(tool, name)));
 
   root.append(page);
 
-  // Mount the interactive tool; guard against tool errors.
   try { tool.mount(toolRoot, { tool }); }
   catch (e) {
     console.error("[tool] mount failed", e);
-    toolRoot.append(h("div", { class: "empty-state" }, h("div", { class: "empty-state__icon" }, "⚠️"), "This tool hit an error. Please refresh."));
+    toolRoot.append(h("div", { class: "empty-state" }, h("div", { class: "empty-state__icon" }, "⚠️"), t("toolPage.mountError")));
   }
   observeReveals(page);
 
-  // Fire an unmount event when navigating away (for timers etc.)
   const cleanup = () => toolRoot.dispatchEvent(new CustomEvent("tool:unmount"));
   window.addEventListener("hashchange", cleanup, { once: true });
 }
 
-function breadcrumb(cat, tool) {
+function breadcrumb(cat, name) {
   return h("nav", { class: "breadcrumb", "aria-label": "Breadcrumb" },
-    h("a", { href: "#/" }, "Home"),
+    h("a", { href: "#/" }, t("common.home")),
     h("span", { class: "breadcrumb__sep" }, "/"),
-    h("a", { href: `#/category/${cat.id}` }, cat.name),
+    h("a", { href: `#/category/${cat.id}` }, catName(cat.id)),
     h("span", { class: "breadcrumb__sep" }, "/"),
-    h("span", { style: { color: "var(--text)" } }, tool.name));
+    h("span", { style: { color: "var(--text)" } }, name));
 }
 
 function sidebar(tool) {
   const related = relatedTools(tool.id, 4);
   const side = h("aside", { class: "tool-side" });
+  const steps = tt(tool, "steps"), tips = tt(tool, "tips");
 
-  if (tool.steps?.length) {
+  if (steps?.length) {
     side.append(h("div", { class: "side-card reveal" },
-      h("h3", {}, h("span", { html: icon("info") }), "How to use"),
-      h("ul", {}, ...tool.steps.map((s) => h("li", {}, s)))));
+      h("h3", {}, h("span", { html: icon("info") }), t("toolPage.howTo")),
+      h("ul", {}, ...steps.map((s) => h("li", {}, s)))));
   }
-  if (tool.tips?.length) {
+  if (tips?.length) {
     side.append(h("div", { class: "side-card reveal" },
-      h("h3", {}, h("span", { html: icon("sparkle") }), "Pro tips"),
-      h("ul", {}, ...tool.tips.map((t) => h("li", {}, t)))));
+      h("h3", {}, h("span", { html: icon("sparkle") }), t("toolPage.tips")),
+      h("ul", {}, ...tips.map((tp) => h("li", {}, tp)))));
   }
   if (related.length) {
-    const box = h("div", { class: "side-card reveal" }, h("h3", {}, h("span", { html: icon("grid") }), "Related tools"));
+    const box = h("div", { class: "side-card reveal" }, h("h3", {}, h("span", { html: icon("grid") }), t("toolPage.related")));
     related.forEach((r) => {
       const rt = h("div", { class: "related-tool", onclick: () => navigate(`/tool/${r.id}`) },
         h("span", { class: "related-tool__icon" }, r.icon),
-        h("div", {}, h("div", { class: "related-tool__name" }, r.name)));
+        h("div", {}, h("div", { class: "related-tool__name" }, tt(r, "name"))));
       box.append(rt);
     });
     side.append(box);
@@ -106,18 +109,19 @@ function sidebar(tool) {
   return side;
 }
 
-function contentBlock(tool) {
-  if (!tool.about && !tool.faqs?.length) return h("div");
+function contentBlock(tool, name) {
+  const about = tt(tool, "about"), faqs = tt(tool, "faqs");
+  if (!about && !faqs?.length) return h("div");
   const prose = h("div", { class: "prose container" });
-  if (tool.about) {
+  if (about) {
     prose.append(
-      h("h2", { class: "reveal" }, `About the ${tool.name}`),
-      h("p", { class: "reveal" }, tool.about));
+      h("h2", { class: "reveal" }, t("toolPage.about", { name })),
+      h("p", { class: "reveal" }, about));
   }
-  if (tool.faqs?.length) {
-    prose.append(h("h2", { class: "reveal" }, "Frequently asked questions"));
+  if (faqs?.length) {
+    prose.append(h("h2", { class: "reveal" }, t("toolPage.faq")));
     const list = h("div", { class: "faq-list", style: { margin: 0 } });
-    for (const f of tool.faqs) {
+    for (const f of faqs) {
       const a = h("div", { class: "faq-a" }, h("div", { class: "faq-a__inner" }, f.a));
       const item = h("div", { class: "faq-item reveal" },
         h("button", { class: "faq-q", onclick: () => {
@@ -137,10 +141,10 @@ export function renderListing(root, { title, lead, tools, eyebrow }) {
   setSEO({ title: `${title} — LifeTools`, description: lead });
   root.innerHTML = "";
   const grid = h("div", { class: "tool-grid" });
-  tools.forEach((t) => grid.append(toolCard(t)));
+  tools.forEach((tool) => grid.append(toolCard(tool)));
   const page = h("div", { class: "section container view" },
     h("div", { class: "section__head reveal" },
-      h("span", { class: "eyebrow" }, h("span", { class: "chip__dot" }), eyebrow || "Tools"),
+      h("span", { class: "eyebrow" }, h("span", { class: "chip__dot" }), eyebrow || t("nav.tools")),
       h("h1", { class: "section__title" }, title),
       lead && h("p", { class: "section__lead" }, lead)),
     tools.length ? grid : emptyState());
@@ -149,13 +153,18 @@ export function renderListing(root, { title, lead, tools, eyebrow }) {
 }
 
 export function renderAllTools(root) {
-  renderListing(root, { title: "All Tools", lead: `Browse the full LifeTools collection — ${allTools().length} tools and counting.`, tools: allTools(), eyebrow: "Everything" });
+  renderListing(root, { title: t("listing.all"), lead: t("listing.allLead", { n: allTools().length }), tools: allTools(), eyebrow: t("listing.everything") });
 }
 
 export function renderCategory(root, id) {
   const cat = categoryMap[id];
   if (!cat) return renderNotFound(root);
-  renderListing(root, { title: cat.name + " Tools", lead: cat.blurb, tools: toolsByCategory(id), eyebrow: `${cat.icon} Category` });
+  renderListing(root, {
+    title: catName(id) + t("listing.catSuffix"),
+    lead: t(`cat.${id}Blurb`),
+    tools: toolsByCategory(id),
+    eyebrow: `${cat.icon} ${t("listing.category")}`,
+  });
 }
 
 export function renderFavorites(root) {
@@ -165,28 +174,28 @@ export function renderFavorites(root) {
     root.append(h("div", { class: "section container view" },
       h("div", { class: "empty-state" },
         h("div", { class: "empty-state__icon" }, "⭐"),
-        h("h2", { style: { marginBottom: ".5rem" } }, "No favorites yet"),
-        h("p", { style: { marginBottom: "1.5rem" } }, "Star tools you use often and they'll appear here for quick access."),
-        h("button", { class: "btn btn--primary", onclick: () => navigate("/tools") }, "Browse tools"))));
-    setSEO({ title: "Favorites — LifeTools", description: "Your saved tools." });
+        h("h2", { style: { marginBottom: ".5rem" } }, t("listing.favEmptyTitle")),
+        h("p", { style: { marginBottom: "1.5rem" } }, t("listing.favEmptyText")),
+        h("button", { class: "btn btn--primary", onclick: () => navigate("/tools") }, t("listing.browse")))));
+    setSEO({ title: t("listing.favTitle") + " — LifeTools", description: t("listing.favLead") });
     return;
   }
-  renderListing(root, { title: "Your Favorites", lead: "Your starred tools, ready to go.", tools: favs, eyebrow: "Saved" });
+  renderListing(root, { title: t("listing.favTitle"), lead: t("listing.favLead"), tools: favs, eyebrow: t("listing.saved") });
 }
 
 function emptyState() {
   return h("div", { class: "empty-state" },
     h("div", { class: "empty-state__icon" }, "🔍"),
-    h("p", {}, "No tools here yet."));
+    h("p", {}, t("listing.empty")));
 }
 
 export function renderNotFound(root) {
-  setSEO({ title: "Not found — LifeTools", description: "Page not found." });
+  setSEO({ title: t("notFound.title") + " — LifeTools", description: t("notFound.text") });
   root.innerHTML = "";
   root.append(h("div", { class: "section container view" },
     h("div", { class: "empty-state" },
       h("div", { class: "empty-state__icon" }, "🧭"),
-      h("h2", { style: { marginBottom: ".5rem" } }, "Page not found"),
-      h("p", { style: { marginBottom: "1.5rem" } }, "The tool or page you're looking for doesn't exist."),
-      h("button", { class: "btn btn--primary", onclick: () => navigate("/") }, "Back home"))));
+      h("h2", { style: { marginBottom: ".5rem" } }, t("notFound.title")),
+      h("p", { style: { marginBottom: "1.5rem" } }, t("notFound.text")),
+      h("button", { class: "btn btn--primary", onclick: () => navigate("/") }, t("notFound.back")))));
 }

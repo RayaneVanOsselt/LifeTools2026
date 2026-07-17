@@ -8,6 +8,7 @@ import { categoryMap } from "../core/registry.js";
 import { isFavorite, toggleFavorite } from "../core/store.js";
 import { navigate } from "../core/router.js";
 import { toast } from "../components/toast.js";
+import { t, tt } from "../core/i18n.js";
 
 /** A single tool card for grids. */
 export function toolCard(tool) {
@@ -17,24 +18,25 @@ export function toolCard(tool) {
     "aria-label": "Toggle favorite", html: icon("star"),
     style: { position: "absolute", top: "1rem", right: "1rem" },
   });
+  const name = tt(tool, "name");
   fav.addEventListener("click", (e) => {
     e.stopPropagation();
     const on = toggleFavorite(tool.id);
     fav.classList.toggle("is-fav", on);
-    toast(on ? `Added ${tool.name} to favorites` : `Removed from favorites`, "success", 1600);
+    toast(on ? t("toolPage.favAdded", { name }) : t("toolPage.favRemoved"), "success", 1600);
   });
 
   const card = h("article", {
     class: "tool-card reveal", "data-reveal": "scale", tabindex: "0", role: "link",
-    "aria-label": tool.name,
+    "aria-label": name,
     style: { "--card-accent": cat.accent },
   },
     fav,
     h("div", { class: "tool-card__icon" }, tool.icon),
-    h("h3", { class: "tool-card__title" }, tool.name),
-    h("p", { class: "tool-card__desc" }, tool.tagline),
+    h("h3", { class: "tool-card__title" }, name),
+    h("p", { class: "tool-card__desc" }, tt(tool, "tagline")),
     h("div", { class: "tool-card__foot" },
-      h("span", { class: "tool-card__cat" }, cat.name),
+      h("span", { class: "tool-card__cat" }, t(`cat.${cat.id}`)),
       tool.badge ? h("span", { class: "hero-badge__pill" }, tool.badge)
         : h("span", { style: { color: cat.accent }, html: icon("arrowRight") })),
   );

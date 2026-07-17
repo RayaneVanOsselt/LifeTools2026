@@ -24,7 +24,7 @@ createServer(async (req, res) => {
     const full = normalize(join(ROOT, path));
     if (!full.startsWith(ROOT)) { res.writeHead(403).end("Forbidden"); return; }
     const data = await readFile(full);
-    res.writeHead(200, { "Content-Type": TYPES[extname(full)] || "application/octet-stream", "Cache-Control": "no-cache" });
+    res.writeHead(200, { "Content-Type": TYPES[extname(full)] || "application/octet-stream", "Cache-Control": "no-store, must-revalidate" });
     res.end(data);
   } catch {
     res.writeHead(404, { "Content-Type": "text/html" }).end("<h1>404</h1>");

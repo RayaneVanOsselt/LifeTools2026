@@ -14,7 +14,7 @@ function apply(pref) {
   const theme = resolve(pref);
   document.documentElement.setAttribute("data-theme", theme);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", theme === "dark" ? "#0a0c14" : "#f7f8fc");
+  if (meta) meta.setAttribute("content", theme === "dark" ? "#0a1c17" : "#f2f5f5");
 }
 
 export const theme = {

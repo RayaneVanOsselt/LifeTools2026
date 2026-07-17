@@ -5,11 +5,11 @@
  */
 
 export const categories = [
-  { id: "finance",      name: "Finance",       icon: "💰", accent: "#345ef4", blurb: "Money, loans, tax & savings" },
-  { id: "health",       name: "Health & Life", icon: "❤️", accent: "#f43f5e", blurb: "Body, wellbeing & habits" },
-  { id: "productivity", name: "Productivity",  icon: "⚡", accent: "#f59e0b", blurb: "Write, plan & get things done" },
-  { id: "developer",    name: "Developer",     icon: "⌨️", accent: "#8b5cf6", blurb: "Code, design & data tools" },
-  { id: "conversion",   name: "Converters",    icon: "🔄", accent: "#06b6d4", blurb: "Units, currency & files" },
+  { id: "finance",      name: "Finance",       icon: "💰", accent: "#0a92b9", blurb: "Money, loans, tax & savings" },
+  { id: "health",       name: "Health & Life", icon: "❤️", accent: "#c18440", blurb: "Body, wellbeing & habits" },
+  { id: "productivity", name: "Productivity",  icon: "⚡", accent: "#7d8118", blurb: "Write, plan & get things done" },
+  { id: "developer",    name: "Developer",     icon: "⌨️", accent: "#1f8a76", blurb: "Code, design & data tools" },
+  { id: "conversion",   name: "Converters",    icon: "🔄", accent: "#2f6f5a", blurb: "Units, currency & files" },
 ];
 
 export const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c]));
@@ -26,7 +26,7 @@ export function register(def) {
   if (_tools.has(def.id)) console.warn(`[registry] duplicate tool id: ${def.id}`);
   const cat = categoryMap[def.category];
   _tools.set(def.id, {
-    accent: cat?.accent || "#345ef4",
+    accent: cat?.accent || "#0a92b9",
     keywords: [],
     steps: [],
     tips: [],

@@ -7,19 +7,23 @@ import { icon } from "../utils/icons.js";
 import { allTools, categoryMap, getTool } from "../core/registry.js";
 import { store } from "../core/store.js";
 import { navigate } from "../core/router.js";
+import { t, tt } from "../core/i18n.js";
 
 /** Score a tool against a query. Higher is better; 0 = no match. */
 export function scoreTool(tool, q) {
   if (!q) return 1;
   q = q.toLowerCase();
-  const name = tool.name.toLowerCase();
-  const hay = `${name} ${tool.tagline} ${tool.keywords.join(" ")} ${categoryMap[tool.category].name}`.toLowerCase();
-  if (name === q) return 100;
-  if (name.startsWith(q)) return 80;
-  if (name.includes(q)) return 60;
+  // Match against the localized name first, but also fall back to the English
+  // name and keywords so search works whatever language the user types in.
+  const name = tt(tool, "name").toLowerCase();
+  const enName = tool.name.toLowerCase();
+  const hay = `${name} ${enName} ${tt(tool, "tagline")} ${tool.tagline} ${tool.keywords.join(" ")} ${categoryMap[tool.category].name}`.toLowerCase();
+  if (name === q || enName === q) return 100;
+  if (name.startsWith(q) || enName.startsWith(q)) return 80;
+  if (name.includes(q) || enName.includes(q)) return 60;
   if (tool.keywords.some((k) => k.toLowerCase().startsWith(q))) return 50;
   if (hay.includes(q)) return 30;
-  // subsequence match on name (fuzzy)
+  // subsequence match on the localized name (fuzzy)
   let i = 0;
   for (const ch of name) if (ch === q[i]) i++;
   return i === q.length ? 15 : 0;
@@ -27,15 +31,15 @@ export function scoreTool(tool, q) {
 
 export function searchTools(q, limit = 8) {
   return allTools()
-    .map((t) => ({ t, s: scoreTool(t, q) }))
+    .map((tool) => ({ tool, s: scoreTool(tool, q) }))
     .filter((x) => x.s > 0)
     .sort((a, b) => b.s - a.s)
     .slice(0, limit)
-    .map((x) => x.t);
+    .map((x) => x.tool);
 }
 
 export function initSearch() {
-  const input = h("input", { type: "text", placeholder: "Search tools…", "aria-label": "Search tools" });
+  const input = h("input", { type: "text", placeholder: t("search.placeholder"), "aria-label": t("search.placeholder") });
   const results = h("div", { class: "search-results" });
   const panel = h("div", { class: "search-panel", role: "dialog", "aria-label": "Search" },
     h("div", { class: "search-panel__head" },
@@ -53,33 +57,33 @@ export function initSearch() {
     results.innerHTML = "";
     const recents = store.get("recents").map(getTool).filter(Boolean);
     if (!q && recents.length) {
-      results.append(h("div", { class: "search-section-label" }, "Recently used"));
-      recents.slice(0, 4).forEach((t) => results.append(itemEl(t)));
-      results.append(h("div", { class: "search-section-label" }, "All tools"));
+      results.append(h("div", { class: "search-section-label" }, t("search.recent")));
+      recents.slice(0, 4).forEach((tool) => results.append(itemEl(tool)));
+      results.append(h("div", { class: "search-section-label" }, t("search.all")));
       items = [...recents.slice(0, 4)];
-      allTools().slice(0, 6).forEach((t) => { items.push(t); results.append(itemEl(t)); });
+      allTools().slice(0, 6).forEach((tool) => { items.push(tool); results.append(itemEl(tool)); });
     } else {
       const found = searchTools(q, 10);
       items = found;
       if (!found.length) {
-        results.append(h("div", { class: "search-empty" }, `No tools match “${q}”. Try “loan”, “bmi”, or “convert”.`));
+        results.append(h("div", { class: "search-empty" }, t("search.empty", { q })));
       } else {
-        found.forEach((t) => results.append(itemEl(t)));
+        found.forEach((tool) => results.append(itemEl(tool)));
       }
     }
     highlighted = 0; paintHighlight();
   }
 
-  function itemEl(t) {
-    const cat = categoryMap[t.category];
-    const el = h("div", { class: "search-item", style: { "--card-accent": cat.accent }, dataset: { id: t.id } },
-      h("span", { class: "search-item__icon" }, t.icon),
+  function itemEl(tool) {
+    const cat = categoryMap[tool.category];
+    const el = h("div", { class: "search-item", style: { "--card-accent": cat.accent }, dataset: { id: tool.id } },
+      h("span", { class: "search-item__icon" }, tool.icon),
       h("div", { class: "search-item__body" },
-        h("div", { class: "search-item__title" }, t.name),
-        h("div", { class: "search-item__sub" }, t.tagline)),
+        h("div", { class: "search-item__title" }, tt(tool, "name")),
+        h("div", { class: "search-item__sub" }, tt(tool, "tagline"))),
       h("span", { class: "search-item__enter", html: "↵" }));
-    el.addEventListener("click", () => choose(t));
-    el.addEventListener("mousemove", () => { highlighted = items.indexOf(t); paintHighlight(); });
+    el.addEventListener("click", () => choose(tool));
+    el.addEventListener("mousemove", () => { highlighted = items.indexOf(tool); paintHighlight(); });
     return el;
   }
 
@@ -89,7 +93,7 @@ export function initSearch() {
     results.querySelectorAll(".search-item")[highlighted]?.scrollIntoView({ block: "nearest" });
   }
 
-  function choose(t) { navigate(`/tool/${t.id}`); close(); }
+  function choose(tool) { navigate(`/tool/${tool.id}`); close(); }
 
   function open() {
     overlay.classList.add("is-open");
