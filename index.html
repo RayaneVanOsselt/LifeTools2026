@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f7f8fc" />
+
+  <title>LifeTools — Everything you need, in one place</title>
+  <meta name="description" content="LifeTools is a premium collection of free, private, lightning-fast online tools for finance, health, productivity, development and conversions. Everything you need, in one place." />
+  <meta name="keywords" content="online tools, calculator, converter, VAT calculator, loan calculator, BMI, password generator, QR code, JSON formatter, unit converter" />
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="LifeTools — Everything you need, in one place" />
+  <meta property="og:description" content="Smart online tools designed to simplify your everyday life." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="LifeTools" />
+  <meta name="twitter:description" content="Smart online tools designed to simplify your everyday life." />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23345ef4'/><path d='M54 18 26 58h20l-4 24 28-40H50z' fill='white'/></svg>" />
+
+  <!-- Prevent theme flash: apply stored preference before first paint -->
+  <script>
+    (function () {
+      try {
+        var data = JSON.parse(localStorage.getItem("lifetools:v1")) || {};
+        var pref = data.theme || "system";
+        var dark = pref === "dark" || (pref === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Fonts (progressively enhanced; system fonts used as fallback) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/design-system.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+
+  <!-- Organization structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "LifeTools",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "A premium collection of free online tools for everyday life."
+  }
+  </script>
+
+  <style>
+    /* Splash / first-paint loader */
+    #splash {
+      position: fixed; inset: 0; z-index: 999;
+      display: grid; place-items: center;
+      background: var(--bg);
+      transition: opacity .4s ease, visibility .4s;
+    }
+    #splash.is-hidden { opacity: 0; visibility: hidden; }
+    .splash-mark {
+      width: 60px; height: 60px; border-radius: 18px;
+      background: linear-gradient(135deg, #345ef4, #8b5cf6);
+      display: grid; place-items: center; color: #fff;
+      box-shadow: 0 10px 40px rgba(52,94,244,.4);
+      animation: splash-pop 1s ease infinite alternate;
+    }
+    @keyframes splash-pop { from { transform: translateY(0) scale(1); } to { transform: translateY(-8px) scale(1.05); } }
+  </style>
+</head>
+<body>
+  <a href="#view" class="visually-hidden">Skip to content</a>
+
+  <div id="splash" aria-hidden="true">
+    <div class="splash-mark">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
+    </div>
+  </div>
+
+  <div id="app"></div>
+
+  <noscript>
+    <div style="padding:2rem;text-align:center">LifeTools needs JavaScript enabled to run. Please enable it in your browser.</div>
+  </noscript>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
