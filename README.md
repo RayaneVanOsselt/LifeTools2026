@@ -53,6 +53,30 @@ js/
   utils/                    dom, format, icons, qrcode
 ```
 
+## Accounts, subscriptions & premium (prototype)
+
+A client-side prototype of auth + a €10/month/user Premium plan. The layers are
+kept strictly separate so the fake pieces can be replaced by a real backend
+without touching the UI:
+
+```
+auth.js          accounts & session (localStorage; SHA-256 hashing)
+subscription.js  plan/status/dates + price math (10 €/seat)
+payment.js       PaymentProvider interface → MockPaymentProvider today,
+                 StripeProvider tomorrow (swap ONE export line)
+access.js        accessLevel(tool) → AVAILABLE | PREMIUM  (category-based)
+```
+
+Access is enforced at three levels: card badges (UI), the tool route renders a
+paywall instead of the tool (navigation), and the tool's `mount()` is never
+called while locked (logic). **Free:** Finance & Health. **Premium:**
+Productivity, Developer, Converters (tune via `PREMIUM_CATEGORIES` in
+`access.js`, or per-tool `access: "free"|"premium"`).
+
+⚠️ Being 100% front-end, this is **not tamper-proof** — real security requires a
+backend. To go live: implement `StripeProvider.checkout()` in `payment.js`, and
+back `auth.js` / `subscription.js` with API calls + webhooks.
+
 ## Adding a new tool
 
 Register it from any file imported in `app.js`:

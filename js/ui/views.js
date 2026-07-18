@@ -12,6 +12,8 @@ import { toolCard, observeReveals } from "./components.js";
 import { toast } from "../components/toast.js";
 import { setSEO } from "../core/seo.js";
 import { t, tt } from "../core/i18n.js";
+import { accessLevel, ACCESS } from "../core/access.js";
+import { premiumGate } from "./premium.js";
 
 const catName = (id) => t(`cat.${id}`);
 
@@ -43,7 +45,13 @@ export function renderTool(root, id) {
   const askBtn = h("button", { class: "btn btn--soft", html: `${icon("sparkle")} ${t("toolPage.askAI")}`,
     onclick: () => window.LifeToolsAssistant?.askAbout(name) });
 
+  // Access control (level 2/3): a locked premium tool shows the paywall and its
+  // mount() is never called, so the tool logic never runs for non-premium users.
+  const locked = accessLevel(tool) === ACCESS.PREMIUM;
   const toolRoot = h("div");
+  const panel = locked
+    ? premiumGate(tool)
+    : h("div", { class: "tool-panel" }, toolRoot);
 
   const page = h("div", { class: "tool-page view", style: { "--card-accent": cat.accent } },
     h("div", { class: "container" },
@@ -51,20 +59,22 @@ export function renderTool(root, id) {
       h("div", { class: "tool-header" },
         h("div", { class: "tool-header__icon" }, tool.icon),
         h("div", { class: "tool-header__text" },
-          h("h1", {}, name),
+          h("h1", {}, name, locked ? h("span", { class: "premium-tag" }, "★ " + t("auth.pwBadge")) : null),
           h("p", {}, tt(tool, "tagline"))),
         h("div", { class: "tool-header__actions" }, askBtn, favBtn)),
       h("div", { class: "tool-layout" },
-        h("div", {}, h("div", { class: "tool-panel" }, toolRoot)),
+        h("div", {}, panel),
         sidebar(tool)),
       contentBlock(tool, name)));
 
   root.append(page);
 
-  try { tool.mount(toolRoot, { tool }); }
-  catch (e) {
-    console.error("[tool] mount failed", e);
-    toolRoot.append(h("div", { class: "empty-state" }, h("div", { class: "empty-state__icon" }, "⚠️"), t("toolPage.mountError")));
+  if (!locked) {
+    try { tool.mount(toolRoot, { tool }); }
+    catch (e) {
+      console.error("[tool] mount failed", e);
+      toolRoot.append(h("div", { class: "empty-state" }, h("div", { class: "empty-state__icon" }, "⚠️"), t("toolPage.mountError")));
+    }
   }
   observeReveals(page);
 

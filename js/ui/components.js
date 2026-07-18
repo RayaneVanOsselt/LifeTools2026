@@ -9,6 +9,7 @@ import { isFavorite, toggleFavorite } from "../core/store.js";
 import { navigate } from "../core/router.js";
 import { toast } from "../components/toast.js";
 import { t, tt } from "../core/i18n.js";
+import { isPremiumTool, accessLevel, ACCESS } from "../core/access.js";
 
 /** A single tool card for grids. */
 export function toolCard(tool) {
@@ -26,19 +27,28 @@ export function toolCard(tool) {
     toast(on ? t("toolPage.favAdded", { name }) : t("toolPage.favRemoved"), "success", 1600);
   });
 
+  const premium = isPremiumTool(tool);
+  const locked = premium && accessLevel(tool) === ACCESS.PREMIUM;
+
+  const footEnd = premium
+    ? h("span", { class: `premium-pill ${locked ? "is-locked" : "is-unlocked"}`, html: `${icon(locked ? "lock" : "star")}<span>${t("auth.pwBadge")}</span>` })
+    : (tool.badge ? h("span", { class: "hero-badge__pill" }, tool.badge)
+        : h("span", { style: { color: cat.accent }, html: icon("arrowRight") }));
+
   const card = h("article", {
-    class: "tool-card reveal", "data-reveal": "scale", tabindex: "0", role: "link",
-    "aria-label": name,
+    class: `tool-card reveal ${premium ? "is-premium" : ""} ${locked ? "is-locked" : ""}`,
+    "data-reveal": "scale", tabindex: "0", role: "link",
+    "aria-label": name + (locked ? " (Premium)" : ""),
     style: { "--card-accent": cat.accent },
   },
     fav,
+    locked ? h("span", { class: "tool-card__lock", html: icon("lock"), "aria-hidden": "true" }) : null,
     h("div", { class: "tool-card__icon" }, tool.icon),
     h("h3", { class: "tool-card__title" }, name),
     h("p", { class: "tool-card__desc" }, tt(tool, "tagline")),
     h("div", { class: "tool-card__foot" },
       h("span", { class: "tool-card__cat" }, t(`cat.${cat.id}`)),
-      tool.badge ? h("span", { class: "hero-badge__pill" }, tool.badge)
-        : h("span", { style: { color: cat.accent }, html: icon("arrowRight") })),
+      footEnd),
   );
 
   const go = () => navigate(`/tool/${tool.id}`);

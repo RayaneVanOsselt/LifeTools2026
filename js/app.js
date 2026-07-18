@@ -5,12 +5,15 @@
  */
 import { theme } from "./core/theme.js";
 import { initI18n, onLocaleChange } from "./core/i18n.js";
+import { auth } from "./core/auth.js";
 import { route, startRouter, setNotFound, setOnNavigate, resolve } from "./core/router.js";
 import { initNavbar } from "./components/navbar.js";
 import { initSearch } from "./components/search.js";
 import { initAssistant } from "./components/assistant.js";
+import { initAuthModal } from "./components/authModal.js";
 import { buildFooter } from "./components/footer.js";
 import { renderHome } from "./ui/home.js";
+import { renderAccount } from "./ui/account.js";
 import {
   renderTool, renderAllTools, renderCategory, renderFavorites, renderNotFound,
 } from "./ui/views.js";
@@ -29,6 +32,7 @@ import "./tools/conversion.js";
 
 function boot() {
   initI18n();
+  auth.init();
   theme.init();
 
   const app = document.getElementById("app");
@@ -40,6 +44,7 @@ function boot() {
   const search = initSearch();
   const nav = initNavbar({ openSearch: search.open });
   initAssistant();
+  initAuthModal();
 
   // Routes
   route("/", () => renderHome(view));
@@ -47,8 +52,17 @@ function boot() {
   route("/category/:id", ({ id }) => renderCategory(view, id));
   route("/tool/:id", ({ id }) => renderTool(view, id));
   route("/favorites", () => renderFavorites(view));
+  route("/account", () => renderAccount(view));
   setNotFound(() => renderNotFound(view));
   setOnNavigate((path) => nav.setActive(path));
+
+  // Re-render when the user logs in/out or their subscription changes:
+  // the navbar account button, the current view (unlocks/locks tools) all update.
+  auth.onChange(() => {
+    nav.refreshAccount();
+    resolve();
+    nav.setActive(location.hash.slice(1) || "/");
+  });
 
   let footerEl = buildFooter();
   view.after(footerEl);
