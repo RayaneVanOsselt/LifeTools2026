@@ -27,6 +27,8 @@
 }
 .btn:hover { transform: translateY(-2px); }
 .btn:active { transform: translateY(0) scale(0.98); }
+/* Constrain inline icons so an unsized <svg> can't inflate the button. */
+.btn svg { width: 1.15em; height: 1.15em; flex-shrink: 0; }
 
 .btn--primary {
   --_bg: linear-gradient(120deg, var(--brand-500), var(--brand-600));

@@ -8,6 +8,8 @@ import { theme } from "../core/theme.js";
 import { categories } from "../core/registry.js";
 import { navigate } from "../core/router.js";
 import { t, availableLocales, getLocale, setLocale, getLocaleData } from "../core/i18n.js";
+import { auth } from "../core/auth.js";
+import { subscription } from "../core/subscription.js";
 
 export function initNavbar({ openSearch }) {
   const themeBtn = h("button", { class: "theme-toggle", "aria-label": "Toggle dark mode",
@@ -56,6 +58,22 @@ export function initNavbar({ openSearch }) {
   const searchTrigger = h("button", { class: "nav-search-trigger", "aria-label": t("nav.search"), onclick: openSearch });
   const hamburger = h("button", { class: "hamburger", "aria-label": "Menu", "aria-expanded": "false", html: icon("menu") });
   const drawer = h("nav", { class: "mobile-drawer", "aria-label": "Mobile" });
+  const accountSlot = h("div", { class: "nav-account" });
+
+  // ---- Account button (reflects auth state) ----
+  function renderAccount() {
+    accountSlot.innerHTML = "";
+    const user = auth.currentUser();
+    if (!user) {
+      accountSlot.append(h("button", { class: "btn btn--primary btn--sm", onclick: () => window.LifeToolsAuth?.open("login") }, t("auth.signIn")));
+    } else {
+      const premium = subscription.isPremium(user);
+      accountSlot.append(h("button", { class: "account-chip", onclick: () => navigate("/account"), "aria-label": t("auth.myAccount") },
+        h("span", { class: `account-avatar ${premium ? "is-premium" : ""}` }, user.name.trim()[0].toUpperCase()),
+        h("span", { class: "account-chip__name" }, user.name.split(" ")[0]),
+        premium ? h("span", { class: "account-chip__pro" }, "★") : null));
+    }
+  }
 
   function renderLinks() {
     const links = linkDefs();
@@ -69,6 +87,9 @@ export function initNavbar({ openSearch }) {
       h("kbd", {}, "⌘K"));
 
     drawer.innerHTML = "";
+    const user = auth.currentUser();
+    drawer.append(h("a", { href: "#/account", dataset: { path: "/account" }, onclick: () => toggleDrawer(false) },
+      user ? `👤 ${t("auth.myAccount")}` : `👤 ${t("auth.signIn")}`));
     links.forEach((l) => drawer.append(h("a", { href: `#${l.path}`, dataset: { path: l.path }, onclick: () => toggleDrawer(false) }, l.label)));
     drawer.append(h("button", { class: "btn btn--soft", style: { marginTop: ".5rem" }, html: `${icon("search")} ${t("nav.search")}`, onclick: () => { toggleDrawer(false); openSearch(); } }));
   }
@@ -79,7 +100,7 @@ export function initNavbar({ openSearch }) {
         h("span", { class: "brand__mark", html: icon("zap") }),
         h("span", {}, "Life", h("span", { class: "gradient-text" }, "Tools"))),
       navLinks,
-      h("div", { class: "nav-actions" }, searchTrigger, langWrap, themeBtn, hamburger)));
+      h("div", { class: "nav-actions" }, searchTrigger, langWrap, accountSlot, themeBtn, hamburger)));
 
   function toggleDrawer(force) {
     const open = force ?? !drawer.classList.contains("is-open");
@@ -99,6 +120,7 @@ export function initNavbar({ openSearch }) {
 
   renderLinks();
   renderLangMenu();
+  renderAccount();
 
   function setActive(path) {
     qsa("[data-path]").forEach((a) => {
@@ -112,9 +134,13 @@ export function initNavbar({ openSearch }) {
   function refresh() {
     renderLinks();
     renderLangMenu();
+    renderAccount();
     langBtn.setAttribute("aria-label", t("nav.language"));
     searchTrigger.setAttribute("aria-label", t("nav.search"));
   }
 
-  return { setActive, refresh };
+  /** Update just the account button after an auth/subscription change. */
+  function refreshAccount() { renderAccount(); renderLinks(); }
+
+  return { setActive, refresh, refreshAccount };
 }
