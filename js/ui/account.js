@@ -8,7 +8,7 @@ import { t, tt, intlLocale } from "../core/i18n.js";
 import { auth } from "../core/auth.js";
 import { subscription, PRICE_PER_SEAT } from "../core/subscription.js";
 import { allTools, categories } from "../core/registry.js";
-import { isPremiumTool, PREMIUM_CATEGORIES } from "../core/access.js";
+import { isPremiumTool } from "../core/access.js";
 import { navigate } from "../core/router.js";
 import { toast } from "../components/toast.js";
 import { setSEO } from "../core/seo.js";
@@ -98,27 +98,33 @@ function subscriptionCard(user, sub, premium) {
 }
 
 function modulesCard(premium) {
-  const freeCats = categories.filter((c) => !PREMIUM_CATEGORIES.has(c.id));
-  const premiumCats = categories.filter((c) => PREMIUM_CATEGORIES.has(c.id));
-  const premiumCount = allTools().filter(isPremiumTool).length;
-  const freeCount = allTools().length - premiumCount;
+  const tools = allTools();
+  const premiumCount = tools.filter(isPremiumTool).length;
+  const freeCount = tools.length - premiumCount;
 
-  const catList = (cats, unlocked) => h("div", { class: "account-modules" },
-    ...cats.map((c) => h("div", { class: `account-module ${unlocked ? "is-unlocked" : "is-locked"}` },
+  // Per-category accessible/total — accurate even if the per-feature config
+  // mixes free & premium tools within a category.
+  const catRows = categories.map((c) => {
+    const inCat = tools.filter((tl) => tl.category === c.id);
+    const accessible = inCat.filter((tl) => !isPremiumTool(tl) || premium).length;
+    const allOk = accessible === inCat.length;
+    return h("div", { class: `account-module ${allOk ? "is-unlocked" : "is-locked"}` },
       h("span", { class: "account-module__icon" }, c.icon),
       h("span", {}, t(`cat.${c.id}`)),
       h("span", { class: "account-module__state" },
-        unlocked ? h("span", { class: "tag tag--ok", html: `${icon("check")}` }) : h("span", { class: "tag tag--lock", html: icon("lock") })))));
+        h("span", { class: "account-module__count" }, `${accessible}/${inCat.length}`),
+        allOk ? h("span", { class: "tag tag--ok", html: icon("check") })
+              : h("span", { class: "tag tag--lock", html: icon("lock") })));
+  });
 
-  const card = h("div", { class: "side-card account-card reveal" },
+  return h("div", { class: "side-card account-card reveal" },
     h("h3", {}, h("span", { html: icon("grid") }), t("auth.modules")),
-    h("div", { class: "account-modline" }, h("span", {}, t("auth.modulesFree")), h("b", {}, `${freeCount}`)),
-    catList(freeCats, true),
-    h("div", { class: "account-modline", style: { marginTop: "1rem" } },
-      h("span", {}, premium ? t("auth.modulesUnlocked") : t("auth.modulesLocked")), h("b", {}, `${premiumCount}`)),
-    catList(premiumCats, premium));
-
-  return card;
+    h("div", { class: "account-counts" },
+      h("div", { class: "account-count is-unlocked" },
+        h("b", {}, `${freeCount}`), h("span", {}, t("auth.modulesFree"))),
+      h("div", { class: `account-count ${premium ? "is-unlocked" : "is-locked"}` },
+        h("b", {}, `${premiumCount}`), h("span", {}, premium ? t("auth.modulesUnlocked") : t("auth.modulesLocked")))),
+    h("div", { class: "account-modules" }, ...catRows));
 }
 
 function row(label, value) {

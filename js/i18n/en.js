@@ -129,7 +129,7 @@ registerLocale({
       price: "Price", perMonthSeat: "€{amount} / month / user", perMonth: "€{amount} / month",
       startDate: "Start date", nextRenewal: "Next renewal", memberSince: "Member since", na: "—",
       modules: "Modules", modulesFree: "Free modules", modulesUnlocked: "Unlocked modules", modulesLocked: "Locked modules",
-      seats: "Users (seats)", freeHint: "Finance & Health tools are free for everyone.",
+      seats: "Users (seats)", freeHint: "Free tools stay available to everyone, no subscription needed.",
       upgrade: "Upgrade to Premium", manage: "Manage subscription", cancel: "Cancel subscription",
       cancelConfirm: "Cancel auto-renewal? You'll keep Premium until {date}.", cancelDone: "Auto-renewal cancelled. Premium stays active until the period ends.",
       resume: "Resume subscription", resumeDone: "Auto-renewal re-enabled.", autoRenewOff: "Auto-renewal is off.",

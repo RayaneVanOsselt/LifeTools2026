@@ -128,7 +128,7 @@ registerLocale({
       price: "Prix", perMonthSeat: "{amount} € / mois / utilisateur", perMonth: "{amount} € / mois",
       startDate: "Date de début", nextRenewal: "Prochain renouvellement", memberSince: "Membre depuis", na: "—",
       modules: "Modules", modulesFree: "Modules gratuits", modulesUnlocked: "Modules débloqués", modulesLocked: "Modules verrouillés",
-      seats: "Utilisateurs (sièges)", freeHint: "Les outils Finance & Santé sont gratuits pour tous.",
+      seats: "Utilisateurs (sièges)", freeHint: "Les outils gratuits restent accessibles à tous, sans abonnement.",
       upgrade: "Passer au Premium", manage: "Gérer l'abonnement", cancel: "Résilier l'abonnement",
       cancelConfirm: "Annuler le renouvellement automatique ? Vous gardez le Premium jusqu'au {date}.", cancelDone: "Renouvellement annulé. Le Premium reste actif jusqu'à la fin de la période.",
       resume: "Reprendre l'abonnement", resumeDone: "Renouvellement automatique réactivé.", autoRenewOff: "Le renouvellement automatique est désactivé.",

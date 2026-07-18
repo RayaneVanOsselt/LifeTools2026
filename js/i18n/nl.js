@@ -128,7 +128,7 @@ registerLocale({
       price: "Prijs", perMonthSeat: "€ {amount} / maand / gebruiker", perMonth: "€ {amount} / maand",
       startDate: "Startdatum", nextRenewal: "Volgende verlenging", memberSince: "Lid sinds", na: "—",
       modules: "Modules", modulesFree: "Gratis modules", modulesUnlocked: "Ontgrendelde modules", modulesLocked: "Vergrendelde modules",
-      seats: "Gebruikers (seats)", freeHint: "Financiën- & Gezondheidstools zijn gratis voor iedereen.",
+      seats: "Gebruikers (seats)", freeHint: "Gratis tools blijven voor iedereen beschikbaar, zonder abonnement.",
       upgrade: "Upgraden naar Premium", manage: "Abonnement beheren", cancel: "Abonnement opzeggen",
       cancelConfirm: "Automatische verlenging annuleren? Je houdt Premium tot {date}.", cancelDone: "Verlenging geannuleerd. Premium blijft actief tot het einde van de periode.",
       resume: "Abonnement hervatten", resumeDone: "Automatische verlenging weer ingeschakeld.", autoRenewOff: "Automatische verlenging staat uit.",

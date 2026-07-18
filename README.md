@@ -69,9 +69,13 @@ access.js        accessLevel(tool) → AVAILABLE | PREMIUM  (category-based)
 
 Access is enforced at three levels: card badges (UI), the tool route renders a
 paywall instead of the tool (navigation), and the tool's `mount()` is never
-called while locked (logic). **Free:** Finance & Health. **Premium:**
-Productivity, Developer, Converters (tune via `PREMIUM_CATEGORIES` in
-`access.js`, or per-tool `access: "free"|"premium"`).
+called while locked (logic).
+
+**Which tools are free vs premium is configured PER-FEATURE** in one editable
+table — `js/config/features.js` — mapping each tool id to `"free"` or
+`"premium"` (default split: 15 free / 20 premium). There is no category rule:
+flip any single tool by changing one word; a tool not listed defaults to free.
+`access.js` (`isPremiumTool`) is the only reader, so the config stays central.
 
 ⚠️ Being 100% front-end, this is **not tamper-proof** — real security requires a
 backend. To go live: implement `StripeProvider.checkout()` in `payment.js`, and
