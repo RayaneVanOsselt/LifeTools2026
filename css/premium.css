@@ -157,6 +157,14 @@
 .account-status { font-size: var(--fs-sm); color: var(--text-mute); }
 .account-hint { font-size: var(--fs-xs); color: var(--text-mute); margin-top: var(--sp-3); }
 .account-modline { display: flex; justify-content: space-between; font-size: var(--fs-sm); font-weight: 700; margin-bottom: var(--sp-3); }
+.account-counts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+.account-count { padding: var(--sp-4); border-radius: var(--r-md); background: var(--bg-sunken); text-align: center; }
+.account-count b { display: block; font-size: var(--fs-2xl); font-weight: 800; line-height: 1; }
+.account-count span { font-size: var(--fs-xs); color: var(--text-mute); }
+.account-count.is-unlocked b { color: var(--success); }
+.account-count.is-locked b { color: var(--warning); }
+.account-module__count { font-size: var(--fs-xs); color: var(--text-mute); font-weight: 700; font-variant-numeric: tabular-nums; }
+.account-module__state { display: flex; align-items: center; gap: var(--sp-2); }
 .account-modules { display: flex; flex-direction: column; gap: var(--sp-2); }
 .account-module { display: flex; align-items: center; gap: var(--sp-3); padding: 0.5rem 0.7rem; border-radius: var(--r-sm); background: var(--bg-sunken); font-size: var(--fs-sm); font-weight: 500; }
 .account-module.is-locked { opacity: 0.85; }
